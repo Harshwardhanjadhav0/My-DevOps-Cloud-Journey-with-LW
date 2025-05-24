@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: wpapp
+  name: wpapp
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: wpapp
+  template:
+    metadata:
+      labels:
+        app: wpapp
+    spec:
+      containers:
+      - image: wordpress:latest
+        name: wordpress
+        env:
+        - name: WORDPRESS_DB_HOST
+          value: mysqldb      # --> mysql service/svc name.
+        - name: WORDPRESS_DB_USER
+          valueFrom: 
+              secretKeyRef:
+                name: mysecretbox
+                key:  u
+        - name: WORDPRESS_DB_PASSWORD
+          valueFrom: 
+              secretKeyRef: 
+                name: mysecretbox
+                key:  p
+        - name: WORDPRESS_DB_NAME
+          value: mydb
+
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: wpapp
+  name: wpapp
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+    nodePort: 30001
+  selector:
+    app: wpapp
+  type: NodePort

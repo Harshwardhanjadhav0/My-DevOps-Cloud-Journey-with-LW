@@ -1,0 +1,7 @@
+FROM vimal13/apache-webserver-php:latest
+
+WORKDIR /var/www/html
+COPY index.php .
+
+CMD ["/usr/sbin/httpd", "-DFOREGROUND"]
+

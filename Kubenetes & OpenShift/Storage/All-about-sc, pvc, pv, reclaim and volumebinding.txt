@@ -1,0 +1,31 @@
+1. Pod and Storage: Where Data Lives
+A containerized application in Kubernetes often requires a persistent storage location, such as /data inside a pod. But ephemeral containers don’t retain data beyond their lifecycle, which is where persistent storage comes into play.
+
+2. PVC: Requesting Storage
+A Persistent Volume Claim (PVC) acts as a request for storage. Think of it as a contract between your pod and Kubernetes, asking for storage with specific requirements—size, access mode (ReadWriteOnce, ReadOnlyMany, ReadWriteMany), and storage class.
+
+3. PV: The Actual Storage
+A Persistent Volume (PV) is the actual storage resource available in the cluster. PVs can be manually created by an administrator (static provisioning) or dynamically created using a StorageClass.
+
+4. StorageClass: Automating Storage Provisioning
+Instead of manually defining PVs, StorageClass (SC) automates this process. When a PVC is created, the SC provisions a PV dynamically that matches the claim’s specifications. StorageClasses define parameters such as the provisioner type (AWS EBS, Azure Disk, NFS, etc.), reclaim policy, and volume binding mode.
+
+5. Secondary Volume Storage: Expanding Capacity
+Let’s say your application needs an additional 5Gi storage. You can define a separate PVC, bind it to a PV, and mount it as a secondary volume inside the pod. This is useful for scenarios where different workloads require isolated storage spaces.
+
+6. Directories and Mounting: Making Storage Accessible
+Once storage is available, it needs to be mounted to a directory inside the container. Kubernetes mounts the PV to a specified path (e.g., /data), making it accessible to the application.
+
+7. Reclaim Policy: What Happens When You Delete a PVC?
+The reclaim policy defines what happens to a PV when a PVC is deleted:
+
+Retain: The PV remains even if the PVC is removed, allowing manual data recovery.
+
+Delete: The PV is deleted along with the data when the PVC is removed (common for cloud storage).
+
+Recycle (Deprecated): The PV is scrubbed and made available for reuse.
+
+8. Volume Binding Mode: When PV and PVC Get Matched
+Immediate: The PVC is bound to a PV as soon as it's created.
+
+WaitForFirstConsumer: The PV isn’t bound until a pod requests it, optimizing storage allocation for multi-node clusters.

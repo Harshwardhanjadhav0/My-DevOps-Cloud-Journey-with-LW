@@ -1,0 +1,5 @@
+1. create user key - openssl genrsa -out harsh.key 2048
+2. request cert signing request csr - openssl req -new -key harsh.key -out harsh.csr -subj "/CN=harsh/O=test/O=example.org"
+3. check path of certificate Authority file path from .kube/config file. eg(.minikube/ca.crt).
+4. sudo openssl x509 -req -CA /pathOfca.crt -CAkey /pathOfca.key -CAcreateserial -days 735 -in harsh.csr -out harsh.crt
+5. 

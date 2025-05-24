@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mydeploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      team: storage
+  template: 
+    metadata:
+      labels:
+        team: storage
+    spec:
+      volumes:
+      - name: pod-pvc1 
+        persistentVolumeClaim:
+          claimName: mynewpvc  
+      containers:
+      - name: mypod1
+        image: jenkins/jenkins:latest 
+        volumeMounts: 
+        - mountPath: "/data"
+          name: pod-pvc1  
