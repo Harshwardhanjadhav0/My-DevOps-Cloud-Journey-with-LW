@@ -1,0 +1,127 @@
+markdown
+# AWS EKS Two-Tier Flask Application Deployment Guide
+## Complete Project Documentation
+
+```sh
+▼ Table of Contents
+───────────────────
+1. Project Overview
+2. Infrastructure Setup
+3. Application Deployment
+4. Security Analysis
+5. Verification & Testing
+6. Appendix: Command Cheat Sheet
+1. Project Overview
+Objective:
+Deploy a two-tier Flask/MySQL application on EKS with:
+
+Frontend: Flask web app (LoadBalancer)
+
+Backend: MySQL (ClusterIP)
+
+Infrastructure: 2-node EKS cluster
+
+Architecture:
+
+plain
+[Internet] → [ELB:80] → [Flask Pods] → [MySQL Service] → [MySQL Pod]
+                     ↑               ↑
+                     │               └── Persistent Volume
+                     └── EKS Worker Nodes
+2. Infrastructure Setup
+EKS Cluster Creation
+bash
+eksctl create cluster --name test-cluster --region ap-south-1 \
+--node-type t2.medium --nodes 2 --nodes-max 2
+Cluster Specs:
+
+Kubernetes: 1.32
+
+Nodes: 2 x t2.medium
+
+Network: Auto-configured subnets
+
+Addons: VPC-CNI, CoreDNS
+
+EC2 Configuration
+yaml
+AMI: Amazon Linux 2023
+Instance: t2.micro (init) → t2.medium (EKS)
+Security Group:
+  - SSH: 0.0.0.0/0 (port 22)
+3. Application Deployment
+Repository Structure
+sh
+two-tier-flask-eks/
+├── mysql-configmap.yml    # DB config
+├── mysql-deployment.yml   # MySQL pod specs
+├── mysql-secrets.yml      # Password (base64)
+├── mysql-svc.yml          # ClusterIP service
+├── two-tier-app-*.yml     # Flask app
+└── README.md
+Deployment Commands
+bash
+# 1. Clone repo
+git clone https://github.com/Harshwardhanjadhav/two-tier-flask-eks.git
+
+# 2. Configure secrets
+echo -n "yourpassword" | base64 > mysql-secrets.yml
+
+# 3. Deploy MySQL
+kubectl apply -f mysql-*.yml
+
+# 4. Deploy Flask
+kubectl apply -f two-tier-app-*.yml
+4. Security Analysis
+Critical Findings
+diff
+- Exposed AWS_ACCESS_KEY in terminal history
+- MySQL password "harsh" in base64 (not encrypted)
+- SSH open to 0.0.0.0/0
+- No network policies between pods
+Recommendations
+markdown
+1. [x] Rotate compromised credentials
+2. [ ] Use AWS Secrets Manager
+3. [ ] Implement NetworkPolicies
+4. [ ] Restrict SSH to known IPs
+5. [ ] Enable EKS encryption
+5. Verification
+Check Services
+bash
+kubectl get svc
+Output:
+
+sh
+NAME                   TYPE          CLUSTER-IP      EXTERNAL-IP
+two-tier-app-service   LoadBalancer  10.100.60.131   a4f3d...amazonaws.com
+mysql                  ClusterIP     10.100.198.16   <none>
+Test Database
+sql
+mysql> SELECT * FROM messages;
++----+------------------------+
+| id | message                |
++----+------------------------+
+| 1  | Hello from Harsh!      |
++----+------------------------+
+6. Appendix: Cheat Sheet
+Essential Commands
+bash
+# Cluster management
+eksctl get cluster
+kubectl get nodes -o wide
+
+# Troubleshooting
+kubectl logs -f <pod-name>
+kubectl describe pod <pod-name>
+YAML Samples
+mysql-secrets.yml:
+
+yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-secret
+type: Opaque
+data:
+  password: aGZyc2g=  # "harsh" in base64

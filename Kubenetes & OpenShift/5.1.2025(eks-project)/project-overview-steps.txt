@@ -1,0 +1,43 @@
+1. Login to aws root user.
+	- create a IAM user
+	- go inside it and create access key.
+	- command line interface cli key.
+2. Go to ec2 and create a instance.
+	- ec2 free tier.
+	- install aws cli
+	- aws configure
+	- paste the access / secret keys.
+3. Now install and configure k8s.
+	- install docker
+	- install eksctl
+	- install kubectl
+	- install git
+	- git clone project.
+4. set eks cluster with command:
+eksctl create cluster --name test-cluster --region ap-south-1 --node-type t2.medium --nodes-min 2 --nodes-max 2	- create a cluster of min=2, max=3node.
+5. Create k8s secret and ConfigMap for mysql.
+6. Run manifests files or create from stratch.
+	
+
+-----------------------------------------------------
+
+Download packages;
+
+awscli:
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+sudo apt install unzip
+unzip awscliv2.zip
+sudo ./aws/install -i /usr/local/aws-cli -b /usr/local/bin --update
+
+
+kubectl:
+curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/kubectl
+chmod +x ./kubectl
+sudo mv ./kubectl /usr/local/bin
+kubectl version --short --client
+
+
+eksctl:
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+sudo mv /tmp/eksctl /usr/local/bin
+eksctl version
