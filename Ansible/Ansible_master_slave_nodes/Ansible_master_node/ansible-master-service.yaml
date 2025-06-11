@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ansible-master-svc
+  namespace: ansible-cluster
+spec:
+  selector:
+    app: ansible-master
+  ports:
+    - protocol: TCP
+      port: 22
+      targetPort: 22
+  type: ClusterIP

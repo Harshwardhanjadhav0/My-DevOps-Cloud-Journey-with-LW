@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ansible-master
+  namespace: ansible-cluster
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ansible-master
+  template:
+    metadata:
+      labels:
+        app: ansible-master
+    spec:
+      containers:
+      - name: ansible-master
+        image: harshj2003/ansible-master:v1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 22
+        volumeMounts:
+        - name: ansible-config
+          mountPath: /home/ansible/ansible
+      volumes:
+      - name: ansible-config
+        emptyDir: {}
